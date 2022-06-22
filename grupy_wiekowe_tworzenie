@@ -1,0 +1,134 @@
+SELECT *
+INTO dbo.grupy_wiekowe	        	/*< Tabela docelowa*/
+FROM
+  (
+  SELECT Country, Sex, Year_point, Age, Population  
+  FROM   
+    (
+      SELECT
+	     [Country]
+      ,[Sex]
+      ,[Year_point]
+      ,[0-4]
+      ,[5-9]
+      ,[10-14]
+      ,[15-19]
+      ,[20-24]
+      ,[25-29]
+      ,[30-34]
+      ,[35-39]
+      ,[40-44]
+      ,[45-49]
+      ,[50-54]
+      ,[55-59]
+      ,[60-64]
+      ,[65-69]
+      ,[70-74]
+      ,[75-79]
+      ,[80-84]
+      ,[85-89]
+      ,[90-94]
+      ,[95-99]
+      ,[100+]
+   FROM FEMALES                    /*< Tabela pobrana ze strony ONZ z danymi dot. kobiet, wyczyszczona wstepnie w excelu by był możliwy jej import*/
+    ) f	                          
+  UNPIVOT				                   /*< Przekształcenie osobnych 21 kolumn dla każdej z grup wiekowych do jednej kolumny 'Age'*/
+     (Population FOR Age IN   
+      ([0-4]
+      ,[5-9]
+      ,[10-14]
+      ,[15-19]
+      ,[20-24]
+      ,[25-29]
+      ,[30-34]
+      ,[35-39]
+      ,[40-44]
+      ,[45-49]
+      ,[50-54]
+      ,[55-59]
+      ,[60-64]
+      ,[65-69]
+      ,[70-74]
+      ,[75-79]
+      ,[80-84]
+      ,[85-89]
+      ,[90-94]
+      ,[95-99]
+      ,[100+])  
+  )AS unpvt_fem
+  UNION
+  SELECT Country, Sex, Year_point, Age, Population  
+  FROM   
+    (
+      SELECT
+	     [Country]
+      ,[Sex]
+      ,[Year_point]
+      ,[0-4]
+      ,[5-9]
+      ,[10-14]
+      ,[15-19]
+      ,[20-24]
+      ,[25-29]
+      ,[30-34]
+      ,[35-39]
+      ,[40-44]
+      ,[45-49]
+      ,[50-54]
+      ,[55-59]
+      ,[60-64]
+      ,[65-69]
+      ,[70-74]
+      ,[75-79]
+      ,[80-84]
+      ,[85-89]
+      ,[90-94]
+      ,[95-99]
+      ,[100+]
+     FROM MALES                   /*< Druga tabela z danymi dot. mężczyzn*/
+      ) m                    
+  UNPIVOT  
+     (Population FOR Age IN 
+      ([0-4]
+      ,[5-9]
+      ,[10-14]
+      ,[15-19]
+      ,[20-24]
+      ,[25-29]
+      ,[30-34]
+      ,[35-39]
+      ,[40-44]
+      ,[45-49]
+      ,[50-54]
+      ,[55-59]
+      ,[60-64]
+      ,[65-69]
+      ,[70-74]
+      ,[75-79]
+      ,[80-84]
+      ,[85-89]
+      ,[90-94]
+      ,[95-99]
+      ,[100+])  
+  )AS unpvt_mal
+) pop;
+
+ALTER TABLE dbo.grupy_wiekowe
+ADD country_id int;
+
+ALTER TABLE dbo.grupy_wiekowe
+ADD age_id int;
+
+UPDATE dbo.grupy_wiekowe
+SET dbo.grupy_wiekowe.country_id = (
+SELECT country_id
+FROM kraj
+WHERE kraj.country = dbo.grupy_wiekowe.country
+);
+
+UPDATE dbo.grupy_wiekowe
+SET dbo.grupy_wiekowe.age_id = (
+SELECT age_id
+FROM lata
+WHERE lata.age = dbo.grupy_wiekowe.age
+);
