@@ -1,0 +1,1 @@
+men_negative = IF([sex]="F",[population]*1,[population]*-1)
