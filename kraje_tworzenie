@@ -1,0 +1,29 @@
+SELECT con.[Country], con.[Country code] as 'country_id', reg.[Country] as 'region'
+INTO kraj                                                                             /*< nowa tabela kraje*/
+FROM
+(SELECT DISTINCT [Country], [Country code], [type], [parent code] from countries      /*<tabela countries zaimportowana z excela z danymi dot. grup wiekowych 
+                                                                                        z krajami i kodami krajów*/
+where type='Country/Area') con
+LEFT JOIN
+(SELECT DISTINCT [Country], [Country code] from countries
+where type = 'subregion') reg
+ON con.[parent code] = reg.[Country code];
+
+ALTER TABLE kraj
+ADD continent varchar(20);
+
+UPDATE kraj                                                                            /*< niekonsekwentny podział na kontynenty w tabeli, więc stworzony nowy podział*/
+SET continent = 'Europe'
+where region like '%Europe%';
+UPDATE kraj
+SET continent = 'Asia'
+where region like '%Asia%';
+UPDATE kraj
+SET continent = 'Americas'
+where region like '%America%' or region = 'Caribbean';
+UPDATE kraj
+SET continent = 'Africa'
+where region like '%Africa%';
+UPDATE kraj
+SET continent = 'Oceania'
+where region in ('Australia/New Zealand', 'Melanesia', 'Micronesia', 'Polynesia');
