@@ -132,3 +132,6 @@ SELECT age_id
 FROM lata
 WHERE lata.age = dbo.grupy_wiekowe.age
 );
+
+UPDATE dbo.grupy_wiekowe
+SET population = population *1000;			/*< W pobranej tabeli z danymi, populacja jest wyrażona w tysiącach*/
