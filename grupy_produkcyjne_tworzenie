@@ -1,0 +1,58 @@
+  ALTER TABLE po_przed_prod
+  ADD 
+	[0-14] int,
+	[15-64] int;
+
+UPDATE po_przed_prod
+SET [0-14] = [0-4] + [5-14];
+UPDATE po_przed_prod
+SET [15-64] = [15-24] + [25-64];
+
+SELECT *
+INTO dbo.grupy_produkcja		
+FROM
+	(
+	SELECT 
+		Entity, 
+		Year, 
+		Age, 
+		Population  
+	FROM   
+		(
+		SELECT 
+			Entity, 
+			Year, 
+			[0-14], 
+			[15-64], 
+			[65+]
+		FROM po_przed_prod
+		) f	 
+	UNPIVOT						 
+		(Population FOR Age IN 
+			(
+			[0-14], 
+			[15-64], 
+			[65+]
+			)  
+		) AS unpvt_prod
+) prod;
+
+ALTER TABLE dbo.grupy_produkcyjne
+ADD country_id int;
+
+ALTER TABLE dbo.grupy_produkcyjne
+ADD age_id int;
+
+UPDATE grupy_produkcyjne
+SET grupy_produkcyjne.country_id = (
+SELECT country_id
+FROM kraje
+WHERE kraje.country = grupy_produkcyjne.country
+);
+
+UPDATE grupy_produkcyjne
+SET age_id = (
+SELECT age_id
+FROM lata
+WHERE lata.age = grupy_produkcyjne.age
+);
