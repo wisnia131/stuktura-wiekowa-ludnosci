@@ -1,0 +1,42 @@
+CREATE TABLE lata (
+age_id int identity(1,1) primary key,
+age varchar(10),
+[description] varchar(20)
+)
+
+INSERT INTO lata (age)
+VALUES 
+ ('0-4'),
+ ('5-9'),
+ ('10-14'),
+ ('15-19'),
+ ('20-24'),
+ ('25-29'),
+ ('30-34'),
+ ('35-39'),
+ ('40-44'),
+ ('45-49'),
+ ('50-54'),
+ ('55-59'),
+ ('60-64'),
+ ('65-69'),
+ ('70-74'),
+ ('75-79'),
+ ('80-84'),
+ ('85-89'),
+ ('90-94'),
+ ('95-99'),
+ ('100+'),
+ ('0-14'),
+ ('15-64'),
+ ('65+');
+
+ UPDATE lata
+ SET [description] = 'Przedprodukcyjna'
+ where age_id < 4 or age_id = 22;
+ UPDATE lata
+ SET [description] = 'Produkcyjna'
+ where age_id > 3 and age_id < 14 or age_id = 23;
+ UPDATE lata
+ SET [description] = 'Poprodukcyjna'
+ where age_id > 13 and age_id < 22 or age_id = 24;
