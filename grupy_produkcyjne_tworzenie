@@ -1,34 +1,47 @@
-  ALTER TABLE po_przed_prod
+ /* 
+	Struktura roboczej zaimportowanej tabeli wyjściowej:
+ 
+CREATE TABLE [dbo].[po_przed_prod](
+	[Country] [varchar](50) NOT NULL,
+	[Year] [int] NOT NULL,
+	[0-4] [float] NOT NULL,
+	[5-14] [float] NOT NULL,
+	[15-24] [float] NOT NULL,
+	[25-64] [float] NOT NULL,
+	[65+] [float] NOT NULL;
+*/ 
+ 
+ ALTER TABLE po_przed_prod
   ADD 
 	[0-14] int,
-	[15-64] int;
-
+	[15-64] int;				/*Dodanie dwóch kolumn do przechowania sum wyjściowych kolumn składowych.*/ 
+						/*Razem z kolumną [65+] stworzą trzy z danymi dla grup po-, przed- i produkcyjnej*/
 UPDATE po_przed_prod
 SET [0-14] = [0-4] + [5-14];
 UPDATE po_przed_prod
 SET [15-64] = [15-24] + [25-64];
 
 SELECT *
-INTO dbo.grupy_produkcja		
+INTO dbo.grupy_produkcja			/*SELECT INTO do tabeli docelowej, używanej w raportach*/
 FROM
 	(
 	SELECT 
-		Entity, 
+		Country, 
 		Year, 
 		Age, 
 		Population  
 	FROM   
 		(
 		SELECT 
-			Entity, 
+			Country, 
 			Year, 
 			[0-14], 
 			[15-64], 
 			[65+]
 		FROM po_przed_prod
 		) f	 
-	UNPIVOT						 
-		(Population FOR Age IN 
+	UNPIVOT					/*"Przekręcenie" tabeli i stworzenie jednej kolumny przechowującej grupy wiekowe*/
+		(Population FOR Age IN 		/*i drugiej dla przechowywaniach liczby populacji w danej grupie*/
 			(
 			[0-14], 
 			[15-64], 
@@ -44,14 +57,14 @@ ALTER TABLE dbo.grupy_produkcyjne
 ADD age_id int;
 
 UPDATE grupy_produkcyjne
-SET grupy_produkcyjne.country_id = (
+SET grupy_produkcyjne.country_id = (		/*Zaciągnięcie country_id z powiązanej tabeli kraje*/
 SELECT country_id
 FROM kraje
 WHERE kraje.country = grupy_produkcyjne.country
 );
 
 UPDATE grupy_produkcyjne
-SET age_id = (
+SET age_id = (					/*Zaciągnięcie age_id z powiązanej tabeli lata*/
 SELECT age_id
 FROM lata
 WHERE lata.age = grupy_produkcyjne.age
